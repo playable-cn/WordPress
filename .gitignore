@@ -1,0 +1,17 @@
+.DS_Store
+
+## Sublime Text cache files
+*.tmlanguage.cache
+*.tmPreferences.cache
+*.stTheme.cache
+*.sublime-workspace
+*.sublime-project
+
+## some vi/vim swap tmp files
+*.swl *.swm *.swn *.swo *.swp *.tmp
+
+##
+wp-config.php
+
+wp-includes/wp-db-driver/logs/
+wp-includes/wp-db-driver/logs/*

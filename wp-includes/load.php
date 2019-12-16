@@ -410,7 +410,8 @@ function wp_set_lang_dir() {
 function require_wp_db() {
 	global $wpdb;
 
-	require_once( ABSPATH . WPINC . '/wp-db.php' );
+	require_once( ABSPATH . WPINC . '/wp-db-driver/core.php' );
+
 	if ( file_exists( WP_CONTENT_DIR . '/db.php' ) ) {
 		require_once( WP_CONTENT_DIR . '/db.php' );
 	}
@@ -423,8 +424,10 @@ function require_wp_db() {
 	$dbpassword = defined( 'DB_PASSWORD' ) ? DB_PASSWORD : '';
 	$dbname     = defined( 'DB_NAME' ) ? DB_NAME : '';
 	$dbhost     = defined( 'DB_HOST' ) ? DB_HOST : '';
+	$dbport     = defined( 'DB_PORT' ) ? DB_PORT : '';
+	$dbschema   = defined( 'DB_SCHEMA' ) ? DB_SCHEMA : '';
 
-	$wpdb = new wpdb( $dbuser, $dbpassword, $dbname, $dbhost );
+	$wpdb = new wpdb( $dbuser, $dbpassword, $dbname, $dbhost, $dbport, $dbschema );
 }
 
 /**
