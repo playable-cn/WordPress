@@ -1,0 +1,3 @@
+[submodule "wp-content/plugins/multi-post-thumbnails"]
+	path = wp-content/plugins/multi-post-thumbnails
+	url = git@github.com:playable-cn/multi-post-thumbnails.git

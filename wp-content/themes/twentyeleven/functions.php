@@ -901,3 +901,13 @@ if ( ! function_exists( 'wp_body_open' ) ) :
 		do_action( 'wp_body_open' );
 	}
 endif;
+
+if (class_exists('MultiPostThumbnails')) {
+	new MultiPostThumbnails(
+		array(
+			'label' => 'WP-アイキャッチ画像',
+			'id' => 'wp-featured-image',
+			'post_type' => 'post'
+		)
+	);
+}
