@@ -112,6 +112,8 @@ define( 'WP_DEBUG', true );
 
 define( 'AUTOMATIC_UPDATER_DISABLED', true );
 
+define( 'UPDATER_FULL_DISABLED', true );
+
 define( 'WPLANG', 'ja' );
 
 /* That's all, stop editing! Happy publishing. */
