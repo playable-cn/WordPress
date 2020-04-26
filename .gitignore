@@ -15,3 +15,6 @@ wp-config.php
 
 wp-includes/wp-db-driver/logs/
 wp-includes/wp-db-driver/logs/*
+
+wp-content/uploads/
+wp-content/uploads/*
