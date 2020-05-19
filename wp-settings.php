@@ -114,6 +114,10 @@ require( ABSPATH . WPINC . '/class-wp-matchesmapregex.php' );
 require( ABSPATH . WPINC . '/class-wp.php' );
 require( ABSPATH . WPINC . '/class-wp-error.php' );
 require( ABSPATH . WPINC . '/pomo/mo.php' );
+if (defined('KAMOME_EXTEND_ENABLED') && KAMOME_EXTEND_ENABLED) {
+	require( ABSPATH . WPINC . '/kamome/class-kamome-extend-post.php' );
+	require( ABSPATH . WPINC . '/kamome/kamome-extend-post.php' );
+}
 
 // Include the wpdb class and, if present, a db.php database drop-in.
 global $wpdb;

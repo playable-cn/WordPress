@@ -902,16 +902,6 @@ if ( ! function_exists( 'wp_body_open' ) ) :
 	}
 endif;
 
-if (class_exists('MultiPostThumbnails')) {
-	new MultiPostThumbnails(
-		array(
-			'label' => 'WP-アイキャッチ画像',
-			'id' => 'wp-featured-image',
-			'post_type' => 'post'
-		)
-	);
-}
-
 if (defined('UPDATER_FULL_DISABLED') && UPDATER_FULL_DISABLED) {
 	remove_action('init', 'wp_schedule_update_checks');
 
@@ -948,4 +938,25 @@ if (defined('UPDATER_FULL_DISABLED') && UPDATER_FULL_DISABLED) {
 		remove_submenu_page('index.php', 'update-core.php');
 	}
 	add_action('admin_init', 'remove_submenu');
+}
+
+if (defined('KAMOME_EXTEND_ENABLED') && KAMOME_EXTEND_ENABLED) {
+	function kamome_extend_updated_postmeta($meta_id, $object_id, $meta_key, $meta_value) {
+		if (substr($meta_key, 0, 7) === 'kamome_') {
+			$key = substr($meta_key, 7);
+			$value = $meta_value;
+			if (!empty($value) && substr($key, 0, 5) === 'image') {
+				$image_post = get_post($value);
+				if ($image_post) {
+					$value = $image_post->guid;
+				}
+			}
+			$postarr = array(
+				'post_id' => $object_id,
+				$key => $value,
+			);
+			kamome_extend_update_post($postarr, true);
+		}
+	}
+	add_action( 'updated_postmeta', 'kamome_extend_updated_postmeta', 10, 4 );
 }

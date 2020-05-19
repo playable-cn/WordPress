@@ -30,6 +30,10 @@ $GLOBALS['pg4wp_wp_table_seqs'] = array(
     $table_prefix . 'users' => defined('PG4WP_SEQ_USERS') ? PG4WP_SEQ_USERS : '',
 );
 
+if (defined('KAMOME_EXTEND_ENABLED') && KAMOME_EXTEND_ENABLED) {
+    $GLOBALS['pg4wp_wp_table_seqs'][$table_prefix . 'kamome_extend_posts'] = defined('PG4WP_SEQ_KAMOME_EXTEND_POSTS') ? PG4WP_SEQ_KAMOME_EXTEND_POSTS : '';
+}
+
 function wpsql_ping($conn) {
     return pg_ping($conn);
 }
@@ -188,7 +192,7 @@ function wpsql_insert_id($conn) {
         $res = pg_query($conn, $sql);
         if (false !== $res) {
             $data = pg_fetch_result($res, 0, 0);
-        } elseif( PG4WP_DEBUG || PG4WP_ERROR_LOG) {
+        } elseif( PG4WP_DEBUG || PG4WP_LOG_ERRORS) {
             $log = '['.microtime(true)."] wpsql_insert_id() was called with '$table' and '$ins_field'".
                     " and returned the error:\n".pg_last_error().
                     "\nFor the query:\n".$sql.
