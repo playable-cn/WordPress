@@ -943,6 +943,14 @@ if (defined('UPDATER_FULL_DISABLED') && UPDATER_FULL_DISABLED) {
 if (defined('KAMOME_EXTEND_ENABLED') && KAMOME_EXTEND_ENABLED) {
 	function kamome_extend_updated_postmeta($meta_id, $object_id, $meta_key, $meta_value) {
 		if (substr($meta_key, 0, 7) === 'kamome_') {
+			$post_id = $object_id;
+			$post = get_post($post_id);
+			if (!$post) {
+				return;
+			}
+			if ($post->post_parent != 0) {
+				$post_id = $post->post_parent;
+			}
 			$key = substr($meta_key, 7);
 			$value = $meta_value;
 			if (!empty($value) && substr($key, 0, 5) === 'image') {
@@ -951,12 +959,14 @@ if (defined('KAMOME_EXTEND_ENABLED') && KAMOME_EXTEND_ENABLED) {
 					$value = $image_post->guid;
 				}
 			}
+
 			$postarr = array(
-				'post_id' => $object_id,
+				'post_id' => $post_id,
 				$key => $value,
 			);
 			kamome_extend_update_post($postarr, true);
 		}
 	}
-	add_action( 'updated_postmeta', 'kamome_extend_updated_postmeta', 10, 4 );
+	add_action( 'added_post_meta', 'kamome_extend_updated_postmeta', 10, 4 );
+	add_action( 'updated_post_meta', 'kamome_extend_updated_postmeta', 10, 4 );
 }
