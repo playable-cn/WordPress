@@ -117,6 +117,8 @@ define( 'UPDATER_FULL_DISABLED', true );
 
 define( 'KAMOME_EXTEND_ENABLED', true );
 
+define( 'WP_POST_REVISIONS', 3 );
+
 define( 'WPLANG', 'ja' );
 
 /* That's all, stop editing! Happy publishing. */
