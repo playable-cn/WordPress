@@ -2,7 +2,7 @@
  * @output wp-admin/js/common.js
  */
 
-/* global setUserSetting, ajaxurl, commonL10n, alert, confirm, pagenow */
+/* global setUserSetting, ajaxurl, alert, confirm, pagenow */
 /* global columns, screenMeta */
 
 /**
@@ -15,7 +15,8 @@
 ( function( $, window, undefined ) {
 	var $document = $( document ),
 		$window = $( window ),
-		$body = $( document.body );
+		$body = $( document.body ),
+		__ = wp.i18n.__;
 
 /**
  * Removed in 3.3.0, needed for back-compatibility.
@@ -168,7 +169,7 @@ window.validateForm = function( form ) {
 		.length;
 };
 
-// stub for doing better warnings
+// Stub for doing better warnings.
 /**
  * Shows message pop-up notice or confirmation message.
  *
@@ -188,8 +189,7 @@ window.showNotice = {
 	 * @return {boolean} Returns true if the message is confirmed.
 	 */
 	warn : function() {
-		var msg = commonL10n.warnDelete || '';
-		if ( confirm(msg) ) {
+		if ( confirm( __( 'You are about to permanently delete these items from your site.\nThis action cannot be undone.\n\'Cancel\' to stop, \'OK\' to delete.' ) ) ) {
 			return true;
 		}
 
@@ -334,13 +334,13 @@ $('.contextual-help-tabs').delegate('a', 'click', function(e) {
 	if ( link.is('.active a') )
 		return false;
 
-	// Links
+	// Links.
 	$('.contextual-help-tabs .active').removeClass('active');
 	link.parent('li').addClass('active');
 
 	panel = $( link.attr('href') );
 
-	// Panels
+	// Panels.
 	$('.help-tab-content').not( panel ).removeClass('active').hide();
 	panel.addClass('active').show();
 });
@@ -474,7 +474,6 @@ $document.ready( function() {
 		currentPage = pageInput.val(),
 		isIOS = /iPhone|iPad|iPod/.test( navigator.userAgent ),
 		isAndroid = navigator.userAgent.indexOf( 'Android' ) !== -1,
-		isIE8 = $( document.documentElement ).hasClass( 'ie8' ),
 		$adminMenuWrap = $( '#adminmenuwrap' ),
 		$wpwrap = $( '#wpwrap' ),
 		$adminmenu = $( '#adminmenu' ),
@@ -517,7 +516,7 @@ $document.ready( function() {
 	$( '#collapse-button' ).on( 'click.collapse-menu', function() {
 		var viewportWidth = getViewportWidth() || 961;
 
-		// reset any compensation for submenus near the bottom of the screen
+		// Reset any compensation for submenus near the bottom of the screen.
 		$('#adminmenu div.wp-submenu').css('margin-top', '');
 
 		if ( viewportWidth < 960 ) {
@@ -582,12 +581,12 @@ $document.ready( function() {
 
 		menutop = $menuItem.offset().top;
 		wintop = $window.scrollTop();
-		maxtop = menutop - wintop - 30; // max = make the top of the sub almost touch admin bar
+		maxtop = menutop - wintop - 30; // max = make the top of the sub almost touch admin bar.
 
-		bottomOffset = menutop + $submenu.height() + 1; // Bottom offset of the menu
-		pageHeight = $wpwrap.height(); // Height of the entire page
+		bottomOffset = menutop + $submenu.height() + 1; // Bottom offset of the menu.
+		pageHeight = $wpwrap.height();                  // Height of the entire page.
 		adjustment = 60 + bottomOffset - pageHeight;
-		theFold = $window.height() + wintop - 50; // The fold
+		theFold = $window.height() + wintop - 50;       // The fold.
 
 		if ( theFold < ( bottomOffset - adjustment ) ) {
 			adjustment = bottomOffset - theFold;
@@ -604,8 +603,8 @@ $document.ready( function() {
 		}
 	}
 
-	if ( 'ontouchstart' in window || /IEMobile\/[1-9]/.test(navigator.userAgent) ) { // touch screen device
-		// iOS Safari works with touchstart, the rest work with click
+	if ( 'ontouchstart' in window || /IEMobile\/[1-9]/.test(navigator.userAgent) ) { // Touch screen device.
+		// iOS Safari works with touchstart, the rest work with click.
 		mobileEvent = isIOS ? 'touchstart' : 'click';
 
 		/**
@@ -639,9 +638,11 @@ $document.ready( function() {
 				return;
 			}
 
-			// Show the sub instead of following the link if:
-			//	- the submenu is not open
-			//	- the submenu is not shown inline or the menu is not folded
+			/*
+			 * Show the sub instead of following the link if:
+			 * 	- the submenu is not open.
+			 * 	- the submenu is not shown inline or the menu is not folded.
+			 */
 			if ( ! $menuItem.hasClass( 'opensub' ) && ( ! $menuItem.hasClass( 'wp-menu-open' ) || $menuItem.width() < 40 ) ) {
 				event.preventDefault();
 				adjustSubmenu( $menuItem );
@@ -664,12 +665,12 @@ $document.ready( function() {
 					$submenu = $menuItem.find( '.wp-submenu' ),
 					top = parseInt( $submenu.css( 'top' ), 10 );
 
-				if ( isNaN( top ) || top > -5 ) { // the submenu is visible
+				if ( isNaN( top ) || top > -5 ) { // The submenu is visible.
 					return;
 				}
 
 				if ( $adminmenu.data( 'wp-responsive' ) ) {
-					// The menu is in responsive mode, bail
+					// The menu is in responsive mode, bail.
 					return;
 				}
 
@@ -685,7 +686,7 @@ $document.ready( function() {
 			 */
 			out: function(){
 				if ( $adminmenu.data( 'wp-responsive' ) ) {
-					// The menu is in responsive mode, bail
+					// The menu is in responsive mode, bail.
 					return;
 				}
 
@@ -705,7 +706,7 @@ $document.ready( function() {
 		 */
 		$adminmenu.on( 'focus.adminmenu', '.wp-submenu a', function( event ) {
 			if ( $adminmenu.data( 'wp-responsive' ) ) {
-				// The menu is in responsive mode, bail
+				// The menu is in responsive mode, bail.
 				return;
 			}
 
@@ -756,11 +757,10 @@ $document.ready( function() {
 	function makeNoticesDismissible() {
 		$( '.notice.is-dismissible' ).each( function() {
 			var $el = $( this ),
-				$button = $( '<button type="button" class="notice-dismiss"><span class="screen-reader-text"></span></button>' ),
-				btnText = commonL10n.dismiss || '';
+				$button = $( '<button type="button" class="notice-dismiss"><span class="screen-reader-text"></span></button>' );
 
-			// Ensure plain text
-			$button.find( '.screen-reader-text' ).text( btnText );
+			// Ensure plain text.
+			$button.find( '.screen-reader-text' ).text( __( 'Dismiss this notice.' ) );
 			$button.on( 'click.wp-dismiss-notice', function( event ) {
 				event.preventDefault();
 				$el.fadeTo( 100, 0, function() {
@@ -776,7 +776,7 @@ $document.ready( function() {
 
 	$document.on( 'wp-updates-notice-added wp-plugin-install-error wp-plugin-update-error wp-plugin-delete-error wp-theme-install-error wp-theme-delete-error', makeNoticesDismissible );
 
-	// Init screen meta
+	// Init screen meta.
 	screenMeta.init();
 
 	/**
@@ -902,7 +902,7 @@ $document.ready( function() {
 		}
 	}, '.has-row-actions' );
 
-	// Toggle list table rows on small screens
+	// Toggle list table rows on small screens.
 	$( 'tbody' ).on( 'click', '.toggle-row', function() {
 		$( this ).closest( 'tr' ).toggleClass( 'is-expanded' );
 	});
@@ -925,7 +925,7 @@ $document.ready( function() {
 
 		// After pressing escape key (keyCode: 27), the tab key should tab out of the textarea.
 		if ( e.keyCode == 27 ) {
-			// when pressing Escape: Opera 12 and 27 blur form fields, IE 8 clears them
+			// When pressing Escape: Opera 12 and 27 blur form fields, IE 8 clears them.
 			e.preventDefault();
 			$(el).data('tab-out', true);
 			return;
@@ -1058,7 +1058,7 @@ $document.ready( function() {
 		var windowPos = $window.scrollTop(),
 			resizing = ! event || event.type !== 'scroll';
 
-		if ( isIOS || isIE8 || $adminmenu.data( 'wp-responsive' ) ) {
+		if ( isIOS || $adminmenu.data( 'wp-responsive' ) ) {
 			return;
 		}
 
@@ -1276,7 +1276,7 @@ $document.ready( function() {
 
 			this.maybeDisableSortables = this.maybeDisableSortables.bind( this );
 
-			// Modify functionality based on custom activate/deactivate event
+			// Modify functionality based on custom activate/deactivate event.
 			$document.on( 'wp-responsive-activate.wp-responsive', function() {
 				self.activate();
 			}).on( 'wp-responsive-deactivate.wp-responsive', function() {
@@ -1289,7 +1289,7 @@ $document.ready( function() {
 			$( '#wp-admin-bar-menu-toggle' ).on( 'click.wp-responsive', function( event ) {
 				event.preventDefault();
 
-				// close any open toolbar submenus.
+				// Close any open toolbar submenus.
 				$adminbar.find( '.hover' ).removeClass( 'hover' );
 
 				$wpwrap.toggleClass( 'wp-responsive-open' );
@@ -1558,12 +1558,14 @@ $document.ready( function() {
 	 */
 	$document.on( 'wp-menu-state-set wp-collapse-menu', function( event, eventData ) {
 		var $collapseButton = $( '#collapse-button' ),
-			ariaExpanded = 'true',
-			ariaLabelText = commonL10n.collapseMenu;
+			ariaExpanded, ariaLabelText;
 
 		if ( 'folded' === eventData.state ) {
 			ariaExpanded = 'false';
-			ariaLabelText = commonL10n.expandMenu;
+			ariaLabelText = __( 'Expand Main menu' );
+		} else {
+			ariaExpanded = 'true';
+			ariaLabelText = __( 'Collapse Main menu' );
 		}
 
 		$collapseButton.attr({
@@ -1603,6 +1605,41 @@ $document.ready( function() {
 		$( this ).attr( 'aria-expanded', $progressDiv.is( ':visible' ) );
 	});
 });
+
+/**
+ * Hides the update button for expired plugin or theme uploads.
+ *
+ * On the "Update plugin/theme from uploaded zip" screen, once the upload has expired,
+ * hides the "Replace current with uploaded" button and displays a warning.
+ *
+ * @since 5.5.0
+ */
+$document.ready( function( $ ) {
+	var $overwrite, $warning;
+
+	if ( ! $body.hasClass( 'update-php' ) ) {
+		return;
+	}
+
+	$overwrite = $( 'a.update-from-upload-overwrite' );
+	$warning   = $( '.update-from-upload-expired' );
+
+	if ( ! $overwrite.length || ! $warning.length ) {
+		return;
+	}
+
+	window.setTimeout(
+		function() {
+			$overwrite.hide();
+			$warning.removeClass( 'hidden' );
+
+			if ( window.wp && window.wp.a11y ) {
+				window.wp.a11y.speak( $warning.text() );
+			}
+		},
+		7140000 // 119 minutes. The uploaded file is deleted after 2 hours.
+	);
+} );
 
 // Fire a custom jQuery event at the end of window resize.
 ( function() {

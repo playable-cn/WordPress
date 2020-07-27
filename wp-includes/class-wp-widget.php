@@ -151,11 +151,11 @@ class WP_Widget {
 	 *
 	 * @since 2.8.0
 	 *
-	 * @param string $id_base         Optional Base ID for the widget, lowercase and unique. If left empty,
-	 *                                a portion of the widget's class name will be used Has to be unique.
+	 * @param string $id_base         Optional. Base ID for the widget, lowercase and unique. If left empty,
+	 *                                a portion of the widget's class name will be used. Has to be unique.
 	 * @param string $name            Name for the widget displayed on the configuration page.
-	 * @param array  $widget_options  Optional. Widget options. See wp_register_sidebar_widget() for information
-	 *                                on accepted arguments. Default empty array.
+	 * @param array  $widget_options  Optional. Widget options. See wp_register_sidebar_widget() for
+	 *                                information on accepted arguments. Default empty array.
 	 * @param array  $control_options Optional. Widget control options. See wp_register_widget_control() for
 	 *                                information on accepted arguments. Default empty array.
 	 */
@@ -181,11 +181,11 @@ class WP_Widget {
 	 *
 	 * @see WP_Widget::__construct()
 	 *
-	 * @param string $id_base         Optional Base ID for the widget, lowercase and unique. If left empty,
-	 *                                a portion of the widget's class name will be used Has to be unique.
+	 * @param string $id_base         Optional. Base ID for the widget, lowercase and unique. If left empty,
+	 *                                a portion of the widget's class name will be used. Has to be unique.
 	 * @param string $name            Name for the widget displayed on the configuration page.
-	 * @param array  $widget_options  Optional. Widget options. See wp_register_sidebar_widget() for information
-	 *                                on accepted arguments. Default empty array.
+	 * @param array  $widget_options  Optional. Widget options. See wp_register_sidebar_widget() for
+	 *                                information on accepted arguments. Default empty array.
 	 * @param array  $control_options Optional. Widget control options. See wp_register_widget_control() for
 	 *                                information on accepted arguments. Default empty array.
 	 */
@@ -399,13 +399,13 @@ class WP_Widget {
 
 		$all_instances = $this->get_settings();
 
-		// We need to update the data
+		// We need to update the data.
 		if ( $this->updated ) {
 			return;
 		}
 
 		if ( isset( $_POST['delete_widget'] ) && $_POST['delete_widget'] ) {
-			// Delete the settings for this instance of the widget
+			// Delete the settings for this instance of the widget.
 			if ( isset( $_POST['the-widget-id'] ) ) {
 				$del_id = $_POST['the-widget-id'];
 			} else {
@@ -464,7 +464,7 @@ class WP_Widget {
 					$all_instances[ $number ] = $instance;
 				}
 
-				break; // run only once
+				break; // Run only once.
 			}
 		}
 
@@ -494,7 +494,7 @@ class WP_Widget {
 		$all_instances = $this->get_settings();
 
 		if ( -1 == $widget_args['number'] ) {
-			// We echo out a form where 'number' can be set later
+			// We echo out a form where 'number' can be set later.
 			$this->_set( '__i__' );
 			$instance = array();
 		} else {

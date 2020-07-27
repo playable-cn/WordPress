@@ -10,17 +10,10 @@ if ( ! window.wp ) {
 
 wp.themePluginEditor = (function( $ ) {
 	'use strict';
-	var component, TreeLinks;
+	var component, TreeLinks,
+		__ = wp.i18n.__, _n = wp.i18n._n, sprintf = wp.i18n.sprintf;
 
 	component = {
-		l10n: {
-			lintError: {
-				singular: '',
-				plural: ''
-			},
-			saveAlert: '',
-			saveError: ''
-		},
 		codeEditor: {},
 		instance: null,
 		noticeElements: {},
@@ -75,7 +68,7 @@ wp.themePluginEditor = (function( $ ) {
 
 		$( window ).on( 'beforeunload', function() {
 			if ( component.dirty ) {
-				return component.l10n.saveAlert;
+				return __( 'The changes you made will be lost if you navigate away from this page.' );
 			}
 			return undefined;
 		} );
@@ -233,7 +226,7 @@ wp.themePluginEditor = (function( $ ) {
 			var notice = $.extend(
 				{
 					code: 'save_error',
-					message: component.l10n.saveError
+					message: __( 'Something went wrong. Your change may not have been saved. Please try again. There is also a chance that you may need to manually fix and upload the file over FTP.' )
 				},
 				response,
 				{
@@ -375,20 +368,23 @@ wp.themePluginEditor = (function( $ ) {
 		 * @return {void}
 		 */
 		codeEditorSettings.onUpdateErrorNotice = function onUpdateErrorNotice( errorAnnotations ) {
-			var message, noticeElement;
+			var noticeElement;
 
 			component.submitButton.toggleClass( 'disabled', errorAnnotations.length > 0 );
 
 			if ( 0 !== errorAnnotations.length ) {
-				if ( 1 === errorAnnotations.length ) {
-					message = component.l10n.lintError.singular.replace( '%d', '1' );
-				} else {
-					message = component.l10n.lintError.plural.replace( '%d', String( errorAnnotations.length ) );
-				}
 				noticeElement = component.addNotice({
 					code: 'lint_errors',
 					type: 'error',
-					message: message,
+					message: sprintf(
+						/* translators: %s: Error count. */
+						_n(
+							'There is %s error which must be fixed before you can update this file.',
+							'There are %s errors which must be fixed before you can update this file.',
+							errorAnnotations.length
+						),
+						String( errorAnnotations.length )
+					),
 					dismissible: false
 				});
 				noticeElement.find( 'input[type=checkbox]' ).on( 'click', function() {
@@ -491,7 +487,7 @@ wp.themePluginEditor = (function( $ ) {
 
 		var TreeitemLink = function (node, treeObj, group) {
 
-			// Check whether node is a DOM element
+			// Check whether node is a DOM element.
 			if (typeof node !== 'object') {
 				return;
 			}
@@ -696,7 +692,7 @@ wp.themePluginEditor = (function( $ ) {
 
 		TreeitemLink.prototype.handleClick = function (event) {
 
-			// only process click events that directly happened on this treeitem
+			// Only process click events that directly happened on this treeitem.
 			if (event.target !== this.domNode && event.target !== this.domNode.firstElementChild) {
 				return;
 			}
@@ -773,7 +769,7 @@ wp.themePluginEditor = (function( $ ) {
 		 */
 
 		var TreeLinks = function (node) {
-			// Check whether node is a DOM element
+			// Check whether node is a DOM element.
 			if (typeof node !== 'object') {
 				return;
 			}
@@ -812,7 +808,7 @@ wp.themePluginEditor = (function( $ ) {
 				}
 			}
 
-			// initialize pop up menus
+			// Initialize pop up menus.
 			if (!this.domNode.getAttribute('role')) {
 				this.domNode.setAttribute('role', 'tree');
 			}
@@ -964,16 +960,16 @@ wp.themePluginEditor = (function( $ ) {
 			var start, index;
 			_char = _char.toLowerCase();
 
-			// Get start index for search based on position of currentItem
+			// Get start index for search based on position of currentItem.
 			start = this.treeitems.indexOf(currentItem) + 1;
 			if (start === this.treeitems.length) {
 				start = 0;
 			}
 
-			// Check remaining slots in the menu
+			// Check remaining slots in the menu.
 			index = this.getIndexFirstChars(start, _char);
 
-			// If not found in remaining slots, check from beginning
+			// If not found in remaining slots, check from beginning.
 			if (index === -1) {
 				index = this.getIndexFirstChars(0, _char);
 			}

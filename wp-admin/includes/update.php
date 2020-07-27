@@ -56,7 +56,7 @@ function get_core_updates( $options = array() ) {
 	$updates = $from_api->updates;
 	$result  = array();
 	foreach ( $updates as $update ) {
-		if ( $update->response == 'autoupdate' ) {
+		if ( 'autoupdate' === $update->response ) {
 			continue;
 		}
 
@@ -90,12 +90,12 @@ function find_core_auto_update() {
 		return false;
 	}
 
-	include_once( ABSPATH . 'wp-admin/includes/class-wp-upgrader.php' );
+	require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
 
 	$auto_update = false;
 	$upgrader    = new WP_Automatic_Updater;
 	foreach ( $updates->updates as $update ) {
-		if ( 'autoupdate' != $update->response ) {
+		if ( 'autoupdate' !== $update->response ) {
 			continue;
 		}
 
@@ -276,7 +276,7 @@ function core_update_footer( $msg = '' ) {
  * @since 2.3.0
  *
  * @global string $pagenow
- * @return false|void
+ * @return void|false
  */
 function update_nag() {
 	if ( is_multisite() && ! current_user_can( 'update_core' ) ) {
@@ -285,13 +285,13 @@ function update_nag() {
 
 	global $pagenow;
 
-	if ( 'update-core.php' == $pagenow ) {
+	if ( 'update-core.php' === $pagenow ) {
 		return;
 	}
 
 	$cur = get_preferred_from_update_core();
 
-	if ( ! isset( $cur->response ) || $cur->response != 'upgrade' ) {
+	if ( ! isset( $cur->response ) || 'upgrade' !== $cur->response ) {
 		return false;
 	}
 
@@ -318,7 +318,8 @@ function update_nag() {
 			$cur->current
 		);
 	}
-	echo "<div class='update-nag'>$msg</div>";
+
+	echo "<div class='update-nag notice notice-warning inline'>$msg</div>";
 }
 
 /**
@@ -337,7 +338,7 @@ function update_right_now_message() {
 	if ( current_user_can( 'update_core' ) ) {
 		$cur = get_preferred_from_update_core();
 
-		if ( isset( $cur->response ) && $cur->response == 'upgrade' ) {
+		if ( isset( $cur->response ) && 'upgrade' === $cur->response ) {
 			$msg .= sprintf(
 				'<a href="%s" class="button" aria-describedby="wp-version">%s</a> ',
 				network_admin_url( 'update-core.php' ),
@@ -409,7 +410,7 @@ function wp_plugin_update_rows() {
  *
  * @param string $file        Plugin basename.
  * @param array  $plugin_data Plugin information.
- * @return false|void
+ * @return void|false
  */
 function wp_plugin_update_row( $file, $plugin_data ) {
 	$current = get_site_transient( 'update_plugins' );
@@ -435,7 +436,12 @@ function wp_plugin_update_row( $file, $plugin_data ) {
 	$details_url = self_admin_url( 'plugin-install.php?tab=plugin-information&plugin=' . $response->slug . '&section=changelog&TB_iframe=true&width=600&height=800' );
 
 	/** @var WP_Plugins_List_Table $wp_list_table */
-	$wp_list_table = _get_list_table( 'WP_Plugins_List_Table' );
+	$wp_list_table = _get_list_table(
+		'WP_Plugins_List_Table',
+		array(
+			'screen' => get_current_screen(),
+		)
+	);
 
 	if ( is_network_admin() || ! is_multisite() ) {
 		if ( is_network_admin() ) {
@@ -503,7 +509,7 @@ function wp_plugin_update_row( $file, $plugin_data ) {
 					sprintf(
 						'class="update-link" aria-label="%s"',
 						/* translators: %s: Plugin name. */
-						esc_attr( sprintf( __( 'Update %s now' ), $plugin_name ) )
+						esc_attr( sprintf( _x( 'Update %s now', 'plugin' ), $plugin_name ) )
 					)
 				);
 			} else {
@@ -611,7 +617,7 @@ function wp_theme_update_rows() {
  *
  * @param string   $theme_key Theme stylesheet.
  * @param WP_Theme $theme     Theme object.
- * @return false|void
+ * @return void|false
  */
 function wp_theme_update_row( $theme_key, $theme ) {
 	$current = get_site_transient( 'update_themes' );
@@ -688,7 +694,7 @@ function wp_theme_update_row( $theme_key, $theme ) {
 			sprintf(
 				'class="update-link" aria-label="%s"',
 				/* translators: %s: Theme name. */
-				esc_attr( sprintf( __( 'Update %s now' ), $theme['Name'] ) )
+				esc_attr( sprintf( _x( 'Update %s now', 'theme' ), $theme['Name'] ) )
 			)
 		);
 	}
@@ -720,10 +726,11 @@ function wp_theme_update_row( $theme_key, $theme ) {
  * @since 2.7.0
  *
  * @global int $upgrading
- * @return false|void
+ * @return void|false
  */
 function maintenance_nag() {
-	include( ABSPATH . WPINC . '/version.php' ); // include an unmodified $wp_version
+	// Include an unmodified $wp_version.
+	require ABSPATH . WPINC . '/version.php';
 	global $upgrading;
 	$nag = isset( $upgrading );
 	if ( ! $nag ) {
@@ -758,7 +765,7 @@ function maintenance_nag() {
 		$msg = __( 'An automated WordPress update has failed to complete! Please notify the site administrator.' );
 	}
 
-	echo "<div class='update-nag'>$msg</div>";
+	echo "<div class='update-nag notice notice-warning inline'>$msg</div>";
 }
 
 /**
@@ -931,4 +938,74 @@ function wp_recovery_mode_nag() {
 		</p>
 	</div>
 	<?php
+}
+
+/**
+ * Checks whether auto-updates are enabled.
+ *
+ * @since 5.5.0
+ *
+ * @param string $type The type of update being checked: 'theme' or 'plugin'.
+ * @return bool True if auto-updates are enabled for `$type`, false otherwise.
+ */
+function wp_is_auto_update_enabled_for_type( $type ) {
+	switch ( $type ) {
+		case 'plugin':
+			/**
+			 * Filters whether plugins auto-update is enabled.
+			 *
+			 * @since 5.5.0
+			 *
+			 * @param bool $enabled True if plugins auto-update is enabled, false otherwise.
+			 */
+			return apply_filters( 'plugins_auto_update_enabled', true );
+		case 'theme':
+			/**
+			 * Filters whether themes auto-update is enabled.
+			 *
+			 * @since 5.5.0
+			 *
+			 * @param bool $enabled True if themes auto-update is enabled, false otherwise.
+			 */
+			return apply_filters( 'themes_auto_update_enabled', true );
+	}
+
+	return false;
+}
+
+/**
+ * Determines the appropriate auto-update message to be displayed.
+ *
+ * @since 5.5.0
+ *
+ * @return string The update message to be shown.
+ */
+function wp_get_auto_update_message() {
+	$next_update_time = wp_next_scheduled( 'wp_version_check' );
+
+	// Check if the event exists.
+	if ( false === $next_update_time ) {
+		$message = __( 'Automatic update not scheduled. There may be a problem with WP-Cron.' );
+	} else {
+		$time_to_next_update = human_time_diff( intval( $next_update_time ) );
+
+		// See if cron is overdue.
+		$overdue = ( time() - $next_update_time ) > 0;
+
+		if ( $overdue ) {
+			$message = sprintf(
+				/* translators: %s: Duration that WP-Cron has been overdue. */
+				__( 'Automatic update overdue by %s. There may be a problem with WP-Cron.' ),
+				$time_to_next_update
+			);
+		} else {
+			$message = sprintf(
+				/* translators: %s: Time until the next update. */
+				__( 'Automatic update scheduled in %s.' ),
+				$time_to_next_update
+			);
+		}
+	}
+
+	return $message;
 }

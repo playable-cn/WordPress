@@ -2,7 +2,6 @@
  * @output wp-admin/js/color-picker.js
  */
 
-/* global wpColorPickerL10n */
 ( function( $, undef ) {
 
 	var ColorPicker,
@@ -11,7 +10,8 @@
 		_wrap = '<div class="wp-picker-container" />',
 		_button = '<input type="button" class="button button-small" />',
 		_wrappingLabel = '<label></label>',
-		_wrappingLabelText = '<span class="screen-reader-text"></span>';
+		_wrappingLabelText = '<span class="screen-reader-text"></span>',
+		__ = wp.i18n.__;
 
 	/**
 	 * Creates a jQuery UI color picker that is used in the theme customizer.
@@ -36,7 +36,6 @@
 		 * Creates a color picker that only allows you to adjust the hue.
 		 *
 		 * @since 3.5.0
-		 *
 		 * @access private
 		 *
 		 * @return {void}
@@ -80,7 +79,6 @@
 		 * Creates the color picker, sets default values, css classes and wraps it all in HTML.
 		 *
 		 * @since 3.5.0
-		 *
 		 * @access private
 		 *
 		 * @return {void}
@@ -120,7 +118,7 @@
 				// Insert the default label text.
 				self.wrappingLabelText = $( _wrappingLabelText )
 					.insertBefore( el )
-					.text( wpColorPickerL10n.defaultLabel );
+					.text( __( 'Color value' ) );
 			}
 
 			/*
@@ -138,7 +136,7 @@
 				.insertBefore( self.wrappingLabel )
 				.css( { backgroundColor: self.initialValue } );
 			// Set the toggle button span element text.
-			self.toggler.find( '.wp-color-result-text' ).text( wpColorPickerL10n.pick );
+			self.toggler.find( '.wp-color-result-text' ).text( __( 'Select Color' ) );
 			// Set up the Iris container and insert it after the wrapping label.
 			self.pickerContainer = $( _after ).insertAfter( self.wrappingLabel );
 			// Store a reference to the Clear/Default button.
@@ -148,13 +146,13 @@
 			if ( self.options.defaultColor ) {
 				self.button
 					.addClass( 'wp-picker-default' )
-					.val( wpColorPickerL10n.defaultString )
-					.attr( 'aria-label', wpColorPickerL10n.defaultAriaLabel );
+					.val( __( 'Default' ) )
+					.attr( 'aria-label', __( 'Select default color' ) );
 			} else {
 				self.button
 					.addClass( 'wp-picker-clear' )
-					.val( wpColorPickerL10n.clear )
-					.attr( 'aria-label', wpColorPickerL10n.clearAriaLabel );
+					.val( __( 'Clear' ) )
+					.attr( 'aria-label', __( 'Clear color' ) );
 			}
 
 			// Wrap the wrapping label in its wrapper and append the Clear/Default button.
@@ -209,7 +207,6 @@
 		 * Binds event listeners to the color picker.
 		 *
 		 * @since 3.5.0
-		 *
 		 * @access private
 		 *
 		 * @return {void}

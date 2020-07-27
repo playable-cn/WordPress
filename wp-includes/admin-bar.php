@@ -28,7 +28,7 @@ function _wp_admin_bar_init() {
 	}
 
 	/* Load the admin bar class code ready for instantiation */
-	require_once( ABSPATH . WPINC . '/class-wp-admin-bar.php' );
+	require_once ABSPATH . WPINC . '/class-wp-admin-bar.php';
 
 	/* Instantiate the admin bar */
 
@@ -55,8 +55,11 @@ function _wp_admin_bar_init() {
 /**
  * Renders the admin bar to the page based on the $wp_admin_bar->menu member var.
  *
- * This is called very late on the footer actions so that it will render after
- * anything else being added to the footer.
+ * This is called very early on the {@see 'wp_body_open'} action so that it will render
+ * before anything else being added to the page body.
+ *
+ * For backward compatibility with themes not using the 'wp_body_open' action,
+ * the function is also called late on {@see 'wp_footer'}.
  *
  * It includes the {@see 'admin_bar_menu'} action which should be used to hook in and
  * add new menus to the admin bar. That way you can be sure that you are adding at most
@@ -64,11 +67,17 @@ function _wp_admin_bar_init() {
  * the `$post` global, among others.
  *
  * @since 3.1.0
+ * @since 5.4.0 Called on 'wp_body_open' action first, with 'wp_footer' as a fallback.
  *
  * @global WP_Admin_Bar $wp_admin_bar
  */
 function wp_admin_bar_render() {
 	global $wp_admin_bar;
+	static $rendered = false;
+
+	if ( $rendered ) {
+		return;
+	}
 
 	if ( ! is_admin_bar_showing() || ! is_object( $wp_admin_bar ) ) {
 		return;
@@ -100,6 +109,8 @@ function wp_admin_bar_render() {
 	 * @since 3.1.0
 	 */
 	do_action( 'wp_after_admin_bar_render' );
+
+	$rendered = true;
 }
 
 /**
@@ -134,7 +145,7 @@ function wp_admin_bar_wp_menu( $wp_admin_bar ) {
 	$wp_admin_bar->add_node( $wp_logo_menu_args );
 
 	if ( $about_url ) {
-		// Add "About WordPress" link
+		// Add "About WordPress" link.
 		$wp_admin_bar->add_node(
 			array(
 				'parent' => 'wp-logo',
@@ -145,7 +156,7 @@ function wp_admin_bar_wp_menu( $wp_admin_bar ) {
 		);
 	}
 
-	// Add WordPress.org link
+	// Add WordPress.org link.
 	$wp_admin_bar->add_node(
 		array(
 			'parent' => 'wp-logo-external',
@@ -155,7 +166,7 @@ function wp_admin_bar_wp_menu( $wp_admin_bar ) {
 		)
 	);
 
-	// Add codex link
+	// Add Codex link.
 	$wp_admin_bar->add_node(
 		array(
 			'parent' => 'wp-logo-external',
@@ -165,7 +176,7 @@ function wp_admin_bar_wp_menu( $wp_admin_bar ) {
 		)
 	);
 
-	// Add forums link
+	// Add forums link.
 	$wp_admin_bar->add_node(
 		array(
 			'parent' => 'wp-logo-external',
@@ -175,7 +186,7 @@ function wp_admin_bar_wp_menu( $wp_admin_bar ) {
 		)
 	);
 
-	// Add feedback link
+	// Add feedback link.
 	$wp_admin_bar->add_node(
 		array(
 			'parent' => 'wp-logo-external',
@@ -300,7 +311,7 @@ function wp_admin_bar_my_account_menu( $wp_admin_bar ) {
 			array(
 				'parent' => 'user-actions',
 				'id'     => 'edit-profile',
-				'title'  => __( 'Edit My Profile' ),
+				'title'  => __( 'Edit Profile' ),
 				'href'   => $profile_url,
 			)
 		);
@@ -414,7 +425,9 @@ function wp_admin_bar_customize_menu( $wp_admin_bar ) {
 	}
 
 	// Don't show if the user cannot edit a given customize_changeset post currently being previewed.
-	if ( is_customize_preview() && $wp_customize->changeset_post_id() && ! current_user_can( get_post_type_object( 'customize_changeset' )->cap->edit_post, $wp_customize->changeset_post_id() ) ) {
+	if ( is_customize_preview() && $wp_customize->changeset_post_id()
+		&& ! current_user_can( get_post_type_object( 'customize_changeset' )->cap->edit_post, $wp_customize->changeset_post_id() )
+	) {
 		return;
 	}
 
@@ -555,7 +568,7 @@ function wp_admin_bar_my_sites_menu( $wp_admin_bar ) {
 		}
 	}
 
-	// Add site links
+	// Add site links.
 	$wp_admin_bar->add_group(
 		array(
 			'parent' => 'my-sites',
@@ -679,28 +692,36 @@ function wp_admin_bar_shortlink_menu( $wp_admin_bar ) {
  * @global WP_Query $wp_the_query WordPress Query object.
  * @global int      $user_id      The ID of the user being edited. Not to be confused with the
  *                                global $user_ID, which contains the ID of the current user.
+ * @global int      $post_id      The ID of the post when editing comments for a single post.
  *
  * @param WP_Admin_Bar $wp_admin_bar
  */
 function wp_admin_bar_edit_menu( $wp_admin_bar ) {
-	global $tag, $wp_the_query, $user_id;
+	global $tag, $wp_the_query, $user_id, $post_id;
 
 	if ( is_admin() ) {
-		$current_screen = get_current_screen();
-		$post           = get_post();
-		if ( 'post' == $current_screen->base ) {
+		$current_screen   = get_current_screen();
+		$post             = get_post();
+		$post_type_object = null;
+
+		if ( 'post' === $current_screen->base ) {
 			$post_type_object = get_post_type_object( $post->post_type );
-		} elseif ( 'edit' == $current_screen->base ) {
+		} elseif ( 'edit' === $current_screen->base ) {
 			$post_type_object = get_post_type_object( $current_screen->post_type );
+		} elseif ( 'edit-comments' === $current_screen->base && $post_id ) {
+			$post = get_post( $post_id );
+			if ( $post ) {
+				$post_type_object = get_post_type_object( $post->post_type );
+			}
 		}
 
-		if ( 'post' == $current_screen->base
-			&& 'add' != $current_screen->action
+		if ( ( 'post' === $current_screen->base || 'edit-comments' === $current_screen->base )
+			&& 'add' !== $current_screen->action
 			&& ( $post_type_object )
 			&& current_user_can( 'read_post', $post->ID )
 			&& ( $post_type_object->public )
 			&& ( $post_type_object->show_in_admin_bar ) ) {
-			if ( 'draft' == $post->post_status ) {
+			if ( 'draft' === $post->post_status ) {
 				$preview_link = get_preview_post_link( $post );
 				$wp_admin_bar->add_node(
 					array(
@@ -719,7 +740,7 @@ function wp_admin_bar_edit_menu( $wp_admin_bar ) {
 					)
 				);
 			}
-		} elseif ( 'edit' == $current_screen->base
+		} elseif ( 'edit' === $current_screen->base
 			&& ( $post_type_object )
 			&& ( $post_type_object->public )
 			&& ( $post_type_object->show_in_admin_bar )
@@ -732,7 +753,7 @@ function wp_admin_bar_edit_menu( $wp_admin_bar ) {
 					'href'  => get_post_type_archive_link( $current_screen->post_type ),
 				)
 			);
-		} elseif ( 'term' == $current_screen->base && isset( $tag ) && is_object( $tag ) && ! is_wp_error( $tag ) ) {
+		} elseif ( 'term' === $current_screen->base && isset( $tag ) && is_object( $tag ) && ! is_wp_error( $tag ) ) {
 			$tax = get_taxonomy( $tag->taxonomy );
 			if ( is_taxonomy_viewable( $tax ) ) {
 				$wp_admin_bar->add_node(
@@ -743,7 +764,7 @@ function wp_admin_bar_edit_menu( $wp_admin_bar ) {
 					)
 				);
 			}
-		} elseif ( 'user-edit' == $current_screen->base && isset( $user_id ) ) {
+		} elseif ( 'user-edit' === $current_screen->base && isset( $user_id ) ) {
 			$user_object = get_userdata( $user_id );
 			$view_link   = get_author_posts_url( $user_object->ID );
 			if ( $user_object->exists() && $view_link ) {
@@ -1191,7 +1212,7 @@ function is_admin_bar_showing() {
 	}
 
 	if ( ! isset( $show_admin_bar ) ) {
-		if ( ! is_user_logged_in() || 'wp-login.php' == $pagenow ) {
+		if ( ! is_user_logged_in() || 'wp-login.php' === $pagenow ) {
 			$show_admin_bar = false;
 		} else {
 			$show_admin_bar = _get_admin_bar_pref();
@@ -1220,8 +1241,8 @@ function is_admin_bar_showing() {
  * @access private
  *
  * @param string $context Context of this preference check. Defaults to 'front'. The 'admin'
- *  preference is no longer used.
- * @param int $user Optional. ID of the user to check, defaults to 0 for current user.
+ *                        preference is no longer used.
+ * @param int    $user    Optional. ID of the user to check, defaults to 0 for current user.
  * @return bool Whether the admin bar should be showing for this user.
  */
 function _get_admin_bar_pref( $context = 'front', $user = 0 ) {

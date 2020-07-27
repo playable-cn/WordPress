@@ -169,6 +169,17 @@ if ( ! function_exists( 'twentyfourteen_setup' ) ) :
 		// This theme allows users to set a custom background.
 		add_theme_support(
 			'custom-background',
+			/**
+			 * Filter Twenty Fourteen custom-background support arguments.
+			 *
+			 * @since Twenty Fourteen 1.0
+			 *
+			 * @param array $args {
+			 *     An array of custom-background support arguments.
+			 *
+			 *     @type string $default-color Default color of the background.
+			 * }
+			 */
 			apply_filters(
 				'twentyfourteen_custom_background_args',
 				array(
@@ -192,7 +203,7 @@ if ( ! function_exists( 'twentyfourteen_setup' ) ) :
 		// Indicate widget sidebars can use selective refresh in the Customizer.
 		add_theme_support( 'customize-selective-refresh-widgets' );
 	}
-endif; // twentyfourteen_setup
+endif; // twentyfourteen_setup()
 add_action( 'after_setup_theme', 'twentyfourteen_setup' );
 
 /**
@@ -340,7 +351,7 @@ function twentyfourteen_scripts() {
 		wp_enqueue_script( 'jquery-masonry' );
 	}
 
-	if ( is_front_page() && 'slider' == get_theme_mod( 'featured_content_layout' ) ) {
+	if ( is_front_page() && 'slider' === get_theme_mod( 'featured_content_layout' ) ) {
 		wp_enqueue_script( 'twentyfourteen-slider', get_template_directory_uri() . '/js/slider.js', array( 'jquery' ), '20150120', true );
 		wp_localize_script(
 			'twentyfourteen-slider',
@@ -455,11 +466,11 @@ if ( ! function_exists( 'twentyfourteen_the_attached_image' ) ) :
 				}
 			}
 
-			// get the URL of the next image attachment...
 			if ( $next_id ) {
+				// ...get the URL of the next image attachment.
 				$next_attachment_url = get_attachment_link( $next_id );
 			} else {
-				// or get the URL of the first image attachment.
+				// ...or get the URL of the first image attachment.
 				$next_attachment_url = get_attachment_link( reset( $attachment_ids ) );
 			}
 		}
@@ -544,7 +555,7 @@ function twentyfourteen_body_classes( $classes ) {
 
 	if ( get_header_image() ) {
 		$classes[] = 'header-image';
-	} elseif ( ! in_array( $GLOBALS['pagenow'], array( 'wp-activate.php', 'wp-signup.php' ) ) ) {
+	} elseif ( ! in_array( $GLOBALS['pagenow'], array( 'wp-activate.php', 'wp-signup.php' ), true ) ) {
 		$classes[] = 'masthead-fixed';
 	}
 
@@ -567,7 +578,7 @@ function twentyfourteen_body_classes( $classes ) {
 		$classes[] = 'singular';
 	}
 
-	if ( is_front_page() && 'slider' == get_theme_mod( 'featured_content_layout' ) ) {
+	if ( is_front_page() && 'slider' === get_theme_mod( 'featured_content_layout' ) ) {
 		$classes[] = 'slider';
 	} elseif ( is_front_page() ) {
 		$classes[] = 'grid';
